@@ -1,3 +1,5 @@
+import aiohttp
+import asyncio
 import requests
 
 from django.db import models
@@ -57,6 +59,27 @@ class TelegramBot(models.Model):
             json['parse_mode'] = self.parse_mode
         result = requests.post(self.api + method, json=json, files=files)
         return SimpleNamespace(**result.json())
+
+    def start_polling(self):
+        loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(loop)
+        loop.run_until_complete(self.polling_loop())
+
+    async def polling_loop(self):
+        async with ClientSession() as session:
+            while True:
+                updates = await self._get_updates(session)
+                if updates:
+                    for update in updates:
+                        self.dp.updater(update)
+                await asyncio.sleep(1)
+
+    async def _get_updates(self, session):
+        url = self.api + 'getUpdates'
+        async with session.get(url) as response:
+            if response.status == 200:
+                return await response.json()
+            return []
 
 
 
