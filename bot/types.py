@@ -33,3 +33,31 @@ class TelegramObject:
         if isinstance(value, Iterable) and not isinstance(value, str):
             return list(value)
         return value
+
+
+class KeyboardBuilder:
+    def __init__(self, resize_keyboard=False, one_time_keyboard=False):
+        self.keyboards = []
+        self.resize_keyboard = resize_keyboard
+        self.one_time_keyboard = one_time_keyboard
+
+    def add(self, **kwargs):
+        self.keyboards.append([kwargs])
+
+    def raws(self, x=2) -> None:
+        raw_keyboard = []
+        buttons_count = len(self.keyboards)
+        for i in range(0, buttons_count, x):
+            raw_keyboard.append(self.keyboards[i:i + x])
+        self.keyboards = raw_keyboard
+
+    def inline(self):
+        return {'inline_keyboard': self.keyboards}
+
+    def reply(self):
+        return {"keyboard": self.keyboards, "resize_keyboard": self.resize_keyboard, "one_time_keyboard": self.one_time_keyboard}
+
+
+
+
+
