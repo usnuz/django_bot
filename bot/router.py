@@ -1,4 +1,4 @@
-from types import SimpleNamespace
+from .types import TelegramObject
 
 
 class Router:
@@ -22,7 +22,7 @@ class Router:
 
     def updater(self, update):
         event_type, data = self.detect_event_type(update)
-        data = SimpleNamespace(**data)
+        data = TelegramObject(data)
         if event_type in self.handlers:
             for filter1, handler in self.handlers[event_type]:
                 if filter1(data):

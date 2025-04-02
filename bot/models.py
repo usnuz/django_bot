@@ -5,7 +5,7 @@ import requests
 from django.db import models
 from bot.router import Router
 
-from types import SimpleNamespace
+from .types import TelegramObject
 
 from asgiref.sync import sync_to_async
 
@@ -61,7 +61,7 @@ class TelegramBot(models.Model):
         if json is not None:
             json['parse_mode'] = self.parse_mode
         result = requests.post(self.api + method, json=json, files=files)
-        return SimpleNamespace(**result.json())
+        return TelegramObject(result.json())
 
     def start_polling(self):
         loop = asyncio.new_event_loop()
