@@ -18,7 +18,7 @@ class TelegramBot(models.Model):
     token = models.CharField(max_length=255, unique=True)
     base_api = models.URLField(default='https://api.telegram.org/')
     parse_mode = models.CharField(max_length=255, default='HTML')
-    offset = models.BigIntegerField(default=0, editable=False)
+    offset = models.BigIntegerField(default=0)
 
     @property
     def api(self):
@@ -35,9 +35,9 @@ class TelegramBot(models.Model):
 
     @classmethod
     def __call__(cls, token, *args, **kwargs):
-        bot = TelegramBot.objects.filter(token=token)
+        bot = TelegramBot.objects.filter(token=token).first()  # Fetch the first bot if exists
         if bot:
-            return bot[0]
+            return bot
         else:
             bot = TelegramBot.objects.create(token=token)
             return bot
@@ -77,7 +77,7 @@ class TelegramBot(models.Model):
                     if results:
                         last_update = results[-1]
                         self.offset = last_update['update_id'] + 1
-                        await sync_to_async(self.save(update_fields=['offset']))()
+                        await sync_to_async(self.save, thread_sensitive=True)(update_fields=['offset'])
                         self.dp.updater(last_update)
                 await asyncio.sleep(1)
 
