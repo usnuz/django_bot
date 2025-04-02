@@ -69,8 +69,9 @@ class TelegramBot(models.Model):
         async with aiohttp.ClientSession() as session:
             while True:
                 updates = await self._get_updates(session)
-                if updates:
-                    for update in updates:
+                if updates.get('ok'):
+                    results = updates.get('results')
+                    for update in results:
                         self.dp.updater(update)
                 await asyncio.sleep(1)
 
