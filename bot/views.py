@@ -2,10 +2,11 @@ import json
 import logging
 
 from django.http import JsonResponse
+from django.conf import settings
 from django.views.decorators.csrf import csrf_exempt
 
 
-from .models import TelegramBot
+from .utils import get_bot_model
 
 
 logger = logging.getLogger(__name__)
@@ -15,7 +16,7 @@ def telegram_webhook(request, pk):
     if request.method == "POST":
         try:
             data = json.loads(request.body)
-            bot = TelegramBot.objects.get(id=pk)
+            bot = get_bot_model()
             bot.dp.updater(data)
             return JsonResponse({"status": "success"}, status=200)
         except Exception as e:
@@ -25,7 +26,8 @@ def telegram_webhook(request, pk):
 
 
 def get_webhook(request):
-    bots = TelegramBot.objects.all()
+    bot = get_bot_model()
+    bots = bot.objects.all()
     ws = []
     for bot in bots:
         ws.append(f'{request.build_absolute_uri()}{bot.id}')
