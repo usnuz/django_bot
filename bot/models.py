@@ -77,7 +77,7 @@ class TelegramBot(models.Model):
                     if results:
                         last_update = results[-1]
                         self.offset = last_update['update_id'] + 1
-                        await sync_to_async(self.save_offset)()
+                        await sync_to_async(self.save(update_fields=['offset']))()
                         self.dp.updater(last_update)
                 await asyncio.sleep(1)
 
@@ -89,11 +89,6 @@ class TelegramBot(models.Model):
                 return await response.json()
             return {}
 
-    def save_offset(self):
-        if self.pk:
-            self.save(update_fields=['offset'])
-        else:
-            self.save()
 
 
 
