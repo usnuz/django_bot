@@ -28,6 +28,15 @@ class TelegramBot(models.Model):
             self.DISPATCHERS[str(self.id)] = dispatcher
             return dispatcher
 
+    @classmethod
+    def __call__(cls, token, *args, **kwargs):
+        bot = TelegramBot.objects.filter(token=token)
+        if bot:
+            return bot[0]
+        else:
+            bot = TelegramBot.objects.create(token=token)
+            return bot
+
     def send_message(self, chat_id, text, reply_markup=None):
         data = {'chat_id': chat_id, 'text': text}
         if reply_markup:
