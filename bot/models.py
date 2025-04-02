@@ -16,6 +16,7 @@ class TelegramBot(models.Model):
     token = models.CharField(max_length=255, unique=True)
     base_api = models.URLField(default='https://api.telegram.org/')
     parse_mode = models.CharField(max_length=255, default='HTML')
+    offset = models.BigIntegerField(default=0, editable=False)
 
     @property
     def api(self):
@@ -70,18 +71,24 @@ class TelegramBot(models.Model):
             while True:
                 updates = await self._get_updates(session)
                 if updates.get('ok'):
-                    results = updates.get('results')
-                    for update in results:
-                        self.dp.updater(update)
+                    results = updates.get('result', [])
+                    if results:
+                        last_update = results[-1]
+                        self.offset = last_update['update_id'] + 1
+                        self.save_offset()
+                        self.dp.updater(last_update)
                 await asyncio.sleep(1)
 
     async def _get_updates(self, session):
         url = self.api + 'getUpdates'
-        async with session.get(url) as response:
+        params = {'offset': self.offset} if self.offset else {}
+        async with session.get(url, params=params) as response:
             if response.status == 200:
                 return await response.json()
-            return []
+            return {}
 
+    def save_offset(self):
+        self.save(update_fields=['offset'])  # Offsetni bazaga saqlash
 
 
 
