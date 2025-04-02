@@ -48,7 +48,11 @@ class KeyboardBuilder:
         raw_keyboard = []
         buttons_count = len(self.keyboards)
         for i in range(0, buttons_count, x):
-            raw_keyboard.append(self.keyboards[i:i + x])
+            l = []
+            for button in self.keyboards[i:i + x]:
+                l.extend(button)
+            raw_keyboard.append(l)
+            print(l)
         self.keyboards = raw_keyboard
 
     def inline(self):
