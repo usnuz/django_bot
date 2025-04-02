@@ -23,11 +23,11 @@ class TelegramBot(models.Model):
 
     @property
     def dp(self):
-        if str(self.id) in self.DISPATCHERS:
-            return self.DISPATCHERS[self.id]
+        if str(self.token) in self.DISPATCHERS:
+            return self.DISPATCHERS[self.token]
         else:
             dispatcher = Router(self)
-            self.DISPATCHERS[str(self.id)] = dispatcher
+            self.DISPATCHERS[str(self.token)] = dispatcher
             return dispatcher
 
     @classmethod
@@ -66,7 +66,7 @@ class TelegramBot(models.Model):
         loop.run_until_complete(self.polling_loop())
 
     async def polling_loop(self):
-        async with ClientSession() as session:
+        async with aiohttp.ClientSession() as session:
             while True:
                 updates = await self._get_updates(session)
                 if updates:
