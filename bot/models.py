@@ -11,7 +11,6 @@ class TelegramBot(models.Model):
 
     DISPATCHERS = {}
 
-    id = models.BigIntegerField(unique=True, primary_key=True)
     token = models.CharField(max_length=255, unique=True)
     base_api = models.URLField(default='https://api.telegram.org/')
     parse_mode = models.CharField(max_length=255, default='HTML')
