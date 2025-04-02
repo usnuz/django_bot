@@ -7,6 +7,8 @@ from bot.router import Router
 
 from types import SimpleNamespace
 
+from asgiref.sync import sync_to_async
+
 
 
 class TelegramBot(models.Model):
@@ -75,7 +77,7 @@ class TelegramBot(models.Model):
                     if results:
                         last_update = results[-1]
                         self.offset = last_update['update_id'] + 1
-                        self.save_offset()
+                        await sync_to_async(self.save_offset)()
                         self.dp.updater(last_update)
                 await asyncio.sleep(1)
 
@@ -88,7 +90,10 @@ class TelegramBot(models.Model):
             return {}
 
     def save_offset(self):
-        self.save(update_fields=['offset'])  # Offsetni bazaga saqlash
+        if self.pk:
+            self.save(update_fields=['offset'])
+        else:
+            self.save()
 
 
 
