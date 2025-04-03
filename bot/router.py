@@ -32,11 +32,11 @@ class Router:
         event_type, data = self.detect_event_type(update)
         data = TelegramObject(data)
         if event_type in self.handlers:
-            state = StateManager(chat_id=data.chat.id, user_id=data.from_user.id)
+            state = StateManager(event_type, data)
             for handlers in self.handlers[event_type]:
                 if handlers.get("state"):
                     condition, handler, st = handlers.values()
-                    if condition is None or condition(data) and st == state.current():
+                    if (condition is None or condition(data)) and st == state.current():
                         keys = inspect.signature(handler).parameters.keys()
                         if 'state' in keys:
                             handler(data, state)

@@ -57,6 +57,10 @@ class TelegramBot(models.Model):
         files = {'photo': ('image.jpg', buffer , "image/jpeg")}
         return self._post('sendPhoto', json=data, files=files)
 
+    def edit_message_reply_markup(self, chat_id, message_id, reply_markup=None):
+        data = {"chat_id": chat_id, "message_id": message_id, reply_markup: reply_markup}
+        return self._post('editMessageReplyMarkup', json=data)
+
     def _post(self, method, json=None, files=None):
         if json is not None:
             json['parse_mode'] = self.parse_mode
@@ -75,6 +79,7 @@ class TelegramBot(models.Model):
                 if updates.get('ok'):
                     results = updates.get('result', [])
                     if results:
+                        print(results)
                         last_update = results[-1]
                         self.offset = last_update['update_id'] + 1
                         await sync_to_async(self.save, thread_sensitive=True)(update_fields=['offset'])
