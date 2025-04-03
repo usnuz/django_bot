@@ -11,20 +11,21 @@ class Router:
         self.error_handlers = {}
         self.state_handlers = {}
 
-    def __call__(self, event_type, condition=None, state=None):
+    def __call__(self, event_type, condition=None, state=None, exception=None):
         def decorator(handler):
+            conditions = condition if isinstance(condition, list) else [condition]
             if event_type == 'error':
-                name = condition.__name__
-                self.error_handlers[name] = (condition, handler)
+                name = exception.__name__
+                self.error_handlers[name] = (exception, handler)
                 return handler
             elif state:
                 if event_type not in self.handlers:
                     self.handlers[event_type] = []
-                self.handlers[event_type].append({"condition": condition, "handler": handler, "state": state})
+                self.handlers[event_type].append({"conditions": conditions, "handler": handler, "state": state})
             else:
                 if event_type not in self.handlers:
                     self.handlers[event_type] = []
-                self.handlers[event_type].append({"condition": condition, "handler": handler})
+                self.handlers[event_type].append({"conditions": conditions, "handler": handler})
                 return handler
         return decorator
 
@@ -35,8 +36,8 @@ class Router:
             state = StateManager(event_type, data)
             for handlers in self.handlers[event_type]:
                 if handlers.get("state"):
-                    condition, handler, st = handlers.values()
-                    if (condition is None or condition(data)) and st == state.current():
+                    conditions, handler, st = handlers.values()
+                    if all(cond(data) for cond in conditions if cond) and st == state.current():
                         keys = inspect.signature(handler).parameters.keys()
                         if 'state' in keys:
                             handler(data, state)
@@ -44,8 +45,8 @@ class Router:
                             handler(data)
                         break
                 else:
-                    condition, handler = handlers.values()
-                    if condition is None or condition(data):
+                    conditions, handler = handlers.values()
+                    if all(cond(data) for cond in conditions if cond):
                         keys = inspect.signature(handler).parameters.keys()
                         if 'state' in keys:
                             handler(data, state)
