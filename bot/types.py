@@ -4,6 +4,8 @@ from collections.abc import Iterable
 class TelegramObject:
     def __init__(self, data: dict):
         for key, value in data.items():
+            if key == 'from':
+                key = 'from_user'
             if isinstance(value, dict):
                 value = TelegramObject(value)
             elif isinstance(value, list):
