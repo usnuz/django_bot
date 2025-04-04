@@ -31,9 +31,9 @@ def get_webhook(request):
     bots = bot.objects.all()
     ws = []
     for bot in bots:
-        webhook_url = f"{bot.base_api}bot{bot.token}/setWebhook?url={f'{request.build_absolute_uri()}{bot.id}'}"
+        webhook_url = f"{bot.base_api}bot{bot.token}/setWebhook?url={f'{request.build_absolute_uri()}{bot.id}/'}"
         response = requests.get(webhook_url)
-        ws.append({f'{request.build_absolute_uri()}{bot.id}': response.json()})
+        ws.append({f'{request.build_absolute_uri()}{bot.id}/': response.json()})
     return JsonResponse({"status": "ok", "webhooks": ws}, status=200)
 
 
