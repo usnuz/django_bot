@@ -62,16 +62,16 @@ class TelegramBot(models.Model):
         if reply_markup:
             data['reply_markup'] = reply_markup
         files = {'photo': ('image.jpg', buffer , "image/jpeg")}
-        return self._post('sendPhoto', json=data, files=files)
+        return self._post('sendPhoto', data=data, files=files)
 
     def edit_message_reply_markup(self, chat_id, message_id, reply_markup=None):
         data = {"chat_id": chat_id, "message_id": message_id, reply_markup: reply_markup}
         return self._post('editMessageReplyMarkup', json=data)
 
-    def _post(self, method, json=None, files=None):
+    def _post(self, method, data=None, json=None, files=None):
         if json is not None:
             json['parse_mode'] = self.parse_mode
-        result = requests.post(self.api + method, json=json, files=files)
+        result = requests.post(self.api + method, data=data, json=json, files=files)
         return TelegramObject(result.json())
 
     def start_polling(self):
