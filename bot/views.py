@@ -17,6 +17,7 @@ def telegram_webhook(request, pk):
         try:
             data = json.loads(request.body)
             bot = get_bot_model()
+            bot = bot.objects.get(pk=pk)
             bot.dp.updater(data)
             return JsonResponse({"status": "success"}, status=200)
         except Exception as e:
