@@ -3,6 +3,8 @@ import asyncio
 import requests
 
 from django.db import models
+from django.conf import settings
+from importlib import import_module
 from bot.router import Router
 
 from .types import TelegramObject
@@ -35,7 +37,12 @@ class TelegramBot(models.Model):
 
     @classmethod
     def set(cls, token):
-        bot = TelegramBot.objects.filter(token=token).first()
+        if hasattr(settings, 'BOT_MODEL'):
+            module_path, class_name = settings.BOT_MODEL.rsplit('.', 1)
+            bot = getattr(import_module(module_path), class_name)
+        else:
+            bot = TelegramBot
+        bot = bot.objects.filter(token=token).first()
         if bot:
             return bot
         else:
