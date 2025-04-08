@@ -22,7 +22,7 @@ class StateManager:
         self.STATES[f'ID{self.chat_id}'].update({'data': data})
 
     def get(self):
-        return self.STATES.get(f'ID{self.chat_id}')
+        return self.STATES.get(f'ID{self.chat_id}').get('data', {})
 
     def clear(self):
         del self.STATES[f'ID{self.chat_id}']
