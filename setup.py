@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name="django_bot",
-    version="0.1.27",
+    version="0.1.28",
     author="Shokhzodbek",
     author_email="vipfthef@gmail.com",
     packages=find_packages(),
