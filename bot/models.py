@@ -10,6 +10,9 @@ from .types import TelegramObject
 
 from asgiref.sync import sync_to_async
 
+from importlib import import_module
+from django.conf import settings
+
 
 
 class TelegramBot(models.Model):
@@ -36,7 +39,14 @@ class TelegramBot(models.Model):
 
     @classmethod
     def set(cls, token):
-        bot = TelegramBot.objects.filter(token=token).first()
+        if hasattr(settings, 'BOT_MODEL'):
+            module_path, class_name = settings.BOT_MODEL.rsplit('.', 1)
+            bot = getattr(import_module(module_path), class_name)
+            if issubclass(bot, TelegramBot):
+                bot = bot
+            else:
+                bot = TelegramBot
+        bot = bot.objects.filter(token=token).first()
         if bot:
             return bot
         else:
