@@ -1,31 +1,30 @@
-from typing import Optional
+from bot.models import State
 
 
 class StateManager:
 
-    STATES = {}
-
     def __init__(self, event_type, data):
         if event_type == 'message':
-            self.chat_id = data.chat.id,
-            self.user_id = data.from_user.id,
+            self.chat_id = str(data.chat.id)
+            self.user_id = data.from_user.id
         elif event_type == 'callback_query':
-            self.chat_id = data.message.chat.id,
-            self.user_id = data.message.from_user.id,
-        if f'ID{self.chat_id}' not in self.STATES:
-            self.STATES[f'ID{self.chat_id}'] = {}
+            self.chat_id = str(data.message.chat.id)
+            self.user_id = data.message.from_user.id
+        self.state_record, created = State.objects.get_or_create(chat_id=self.chat_id)
 
-    def set(self, name):
-        self.STATES[f'ID{self.chat_id}'].update({'state': name})
+    def set(self, state_name):
+        self.state_record.state = state_name
+        self.state_record.save()
 
-    def update(self, data: dict) -> None:
-        self.STATES[f'ID{self.chat_id}'].update({'data': data})
+    def update(self, data: dict):
+        self.state_record.data.update(data)
+        self.state_record.save()
 
     def get(self):
-        return self.STATES.get(f'ID{self.chat_id}').get('data', {})
+        return self.state_record.data or {}
 
     def clear(self):
-        del self.STATES[f'ID{self.chat_id}']
+        self.state_record.delete()
 
     def current(self):
-        return self.STATES.get(f'ID{self.chat_id}').get('state')
+        return self.state_record.state

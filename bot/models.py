@@ -14,6 +14,11 @@ from importlib import import_module
 from django.conf import settings
 
 
+class State(models.Model):
+    chat_id = models.BigIntegerField(unique=True)
+    state = models.CharField(max_length=100, blank=True, null=True)
+    data = models.JSONField(blank=True, null=True)
+
 
 class TelegramBot(models.Model):
 
