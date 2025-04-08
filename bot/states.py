@@ -1,4 +1,4 @@
-from bot.models import State
+from django.apps import apps
 
 
 class StateManager:
@@ -10,6 +10,7 @@ class StateManager:
         elif event_type == 'callback_query':
             self.chat_id = str(data.message.chat.id)
             self.user_id = data.message.from_user.id
+        State = apps.get_model('bot', 'State')
         self.state_record, created = State.objects.get_or_create(chat_id=self.chat_id)
 
     def set(self, state_name):
