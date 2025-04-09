@@ -85,6 +85,15 @@ class TelegramBot(models.Model):
         data = {"chat_id": chat_id, "message_ids": message_ids}
         return self._post('deleteMessages', json=data)
 
+    def send_document(self, chat_id, document, caption=None, reply_markup=None):
+        data = {'chat_id': chat_id}
+        if caption:
+            data['caption'] = caption
+        if reply_markup:
+            data['reply_markup'] = reply_markup
+        files = {'photo': document}
+        return self._post('sendDocument', data=data, files=files)
+
     def answer_callback_query(self, callback_query_id, text, show_alert=False):
         data = {'callback_query_id': callback_query_id, 'text': text, 'show_alert': show_alert}
         return self._post('answerCallbackQuery', json=data)
