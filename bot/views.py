@@ -14,15 +14,15 @@ logger = logging.getLogger(__name__)
 @csrf_exempt
 def telegram_webhook(request, pk):
     if request.method == "POST":
-        # try:
-        data = json.loads(request.body)
-        bot = get_bot_model()
-        bot = bot.objects.get(pk=pk)
-        bot.dp.updater(data)
-        return JsonResponse({"status": "success"}, status=200)
-        # except Exception as e:
-        #     logger.error(f"Error in webhook: {str(e)}")
-        #     return JsonResponse({"status": "failed", "message": str(e)}, status=400)
+        try:
+            data = json.loads(request.body)
+            bot = get_bot_model()
+            bot = bot.objects.get(pk=pk)
+            bot.dp.updater(data)
+            return JsonResponse({"status": "success"}, status=200)
+        except Exception as e:
+            logger.error(f"Error in webhook: {str(e)}")
+            return JsonResponse({"status": "failed", "message": str(e)}, status=400)
     return JsonResponse({"status": "ok"}, status=200)
 
 
